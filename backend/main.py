@@ -224,7 +224,7 @@ def guardar_validacion(req: ValidacionBase, role: str = "USUARIO"):
                 f.write(base64.b64decode(base_str))
                 
             # Sobrescribimos el campo inmenso con una simple ruta
-            req.data["foto"] = f"http://127.0.0.1:3000/uploads/{filename}"
+            req.data["foto"] = f"http://127.0.0.1:8000/uploads/{filename}"
         except Exception as e:
             print("Error al procesar la foto:", e)
 

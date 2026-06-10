@@ -76,11 +76,11 @@ export const authService = {
     return res.json();
   },
 
-  async updateUserProfile(oldEmail, newEmail, newName, newPassword) {
+  async updateUserProfile(email, newEmail, newName, newPassword) {
     const payload = { email: newEmail, name: newName };
     if (newPassword) payload.password = newPassword;
 
-    const res = await fetch(`${API_URL}/usuarios/${oldEmail}/profile`, {
+    const res = await fetch(`${API_URL}/usuarios/${email}/profile`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
