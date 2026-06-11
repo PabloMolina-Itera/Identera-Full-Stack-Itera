@@ -318,12 +318,26 @@ Se recomienda cambiar la contraseña tras el primer acceso.
 | `useScanner.js` | |
 | `useImageUploader.js` | |
 
-### Servicios (`src/services/`) (validar @andryd)
+### Servicios (`src/services/`)
 
-| Servicio | Responsabilidad |
-|---|---|
-| `authService.js` | |
-| `apiService.js` | |
+| Archivo | Línea | Método | Endpoint | Comentario en código | Lambda |
+|---|---|---|---|---|---|
+| `apiService.js` | 13 | GET | `${API_URL}/validaciones` | `// Obtiene la lista de validaciones, opcionalmente filtrada por userId` | `identera-lambda-validaciones` |
+| `apiService.js` | 24 | POST | `${API_URL}/validaciones?role=${role}` | `// Crea una validación. Envía id, userId, fecha y data. El role viaja como query param` | `identera-lambda-validaciones` |
+| `apiService.js` | 38 | DELETE | `${API_URL}/validaciones/${id}` | `// Elimina una validación por ID. Lanza error si el backend responde con fallo` | `identera-lambda-validaciones` |
+| `apiService.js` | 47 | DELETE | `${API_URL}/validaciones/all/clear` | `// Elimina todas las validaciones del sistema` | `identera-lambda-validaciones` |
+| `authService.js` | 28 | POST | `${API_URL}/login` | `// Autentica al usuario. Envía email y password. Persiste la sesión en localStorage` | `identera-lambda-usuarios` |
+| `authService.js` | 52 | GET | `${API_URL}/usuarios` | `// Obtiene la lista completa de usuarios sin contraseña` | `identera-lambda-usuarios` |
+| `authService.js` | 58 | POST | `${API_URL}/usuarios` | `// Crea un usuario. Envía id, email, password, name, role y status (siempre enabled)` | `identera-lambda-usuarios` |
+| `authService.js` | 79 | PATCH | `${API_URL}/usuarios/${email}/profile` | `// Actualiza nombre, email y contraseña (opcional). Gestiona cambio de email como PK` | `identera-lambda-usuarios` |
+| `authService.js` | 93 | PATCH | `${API_URL}/usuarios/${email}/status` | `// Cambia el estado del usuario a enabled o disabled` | `identera-lambda-usuarios` |
+| `authService.js` | 106 | PATCH | `${API_URL}/usuarios/${email}/role` | `// Cambia el rol del usuario: ADMINISTRADOR, USUARIO o SEGURIDAD` | `identera-lambda-usuarios` |
+| `authService.js` | 118 | DELETE | `${API_URL}/usuarios/${email}` | `// Elimina el usuario y todos sus carnets asociados. Devuelve error en JSON si falla` | `identera-lambda-usuarios` |
+| `apiService.js` | 57 | POST | `${API_URL}/qr/regenerar` | `// Genera y persiste un nuevo codigoValidador en el carnet activo del usuario autenticado` | `identera-lambda-qr` |
+| — | — | GET | `${API_URL}/qr/regenerar?userId=` | `// Genera un nuevo código sin persistirlo. Endpoint directo de la Lambda, no invocado desde el frontend` | `identera-lambda-qr` |
+| `apiService.js` | 82 | PATCH | `${API_URL}/carnets/${carnetId}` | `// Alias updateValidacion → editarCarnet. Edita campos del carnet de forma parcial (merge)` | `identera-lambda-carnets` |
+| `apiService.js` | 101 | GET | `${API_URL}/carnets` | `// Lista todos los carnets. Acepta ?userId= para filtrar` | `identera-lambda-carnets` |
+| `apiService.js` | 108 | POST | `${API_URL}/carnets` | `// Crea un carnet nuevo. Envía id, userId, fechaCreacion y los campos del carnet` | `identera-lambda-carnets` |
 
 
 ## Infraestructura AWS y CDK
