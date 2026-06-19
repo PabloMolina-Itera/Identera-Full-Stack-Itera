@@ -212,7 +212,18 @@ export default function Validar() {
 
           <section className="validar-imagen card">
             <h3 className="validar-section-title">Subir imagen</h3>
-            <label className="upload-zone">
+            <label
+              className="upload-zone"
+              onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+              onDrop={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const file = e.dataTransfer?.files?.[0];
+                if (file && file.type.startsWith('image/')) {
+                  handleFile({ target: { files: [file] } });
+                }
+              }}
+            >
               <input type="file" accept="image/*" onChange={handleFile} className="upload-input" />
               <svg className="upload-icon" viewBox="0 0 24 24" width="32" height="32" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
