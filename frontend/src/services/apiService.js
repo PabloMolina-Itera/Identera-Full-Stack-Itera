@@ -8,23 +8,36 @@ import { authService } from './authService';
 const API_URL = import.meta.env.VITE_API_URL ?? '';
 const API_KEY = import.meta.env.VITE_API_KEY || null;
 
-function headers(custom = {}) {
-  const h = { 'Content-Type': 'application/json', ...custom };
+function headers(custom = {}, method = 'GET') {
+  const h = { ...custom };
+  // Solo incluir Content-Type en métodos que llevan cuerpo
+  if (method !== 'GET' && method !== 'HEAD') {
+    h['Content-Type'] = 'application/json';
+  }
   if (API_KEY) h['x-api-key'] = API_KEY;
   return h;
 }
 
+// Dedup de requests en vuelo: evita llamadas repetidas simultáneas
+const _inflight = new Map();
+
+function dedup(key, factory) {
+  if (_inflight.has(key)) return _inflight.get(key);
+  const promise = factory().finally(() => _inflight.delete(key));
+  _inflight.set(key, promise);
+  return promise;
+}
+
 export const apiService = {
 
-  async getValidaciones(userId = null) {
-    let url = `${API_URL}/validaciones`;
-    if (userId) {
-      url += `?userId=${encodeURIComponent(userId)}`;
-    }
-
-    const res = await fetch(url, { headers: headers() });
-    if (!res.ok) throw new Error("Fallo al conectarse al Backend");
-    return res.json();
+  getValidaciones(userId = null) {
+    const url = `${API_URL}/validaciones${userId ? `?userId=${encodeURIComponent(userId)}` : ''}`;
+    return dedup(url, () =>
+      fetch(url, { headers: headers({}, 'GET') }).then(res => {
+        if (!res.ok) throw new Error("Fallo al conectarse al Backend");
+        return res.json();
+      })
+    );
   },
 
   async saveValidacion(data, userId, role) {
@@ -37,7 +50,7 @@ export const apiService = {
 
     const res = await fetch(`${API_URL}/validaciones?role=${role || 'USUARIO'}`, {
       method: 'POST',
-      headers: headers(),
+      headers: headers({}, 'POST'),
       body: JSON.stringify(payload)
     });
 
@@ -48,7 +61,7 @@ export const apiService = {
   async deleteValidacion(id) {
     const res = await fetch(`${API_URL}/validaciones/${id}`, {
       method: 'DELETE',
-      headers: headers()
+      headers: headers({}, 'DELETE')
     });
 
     if (!res.ok) throw new Error('Fallo al borrar validación');
@@ -58,7 +71,7 @@ export const apiService = {
   async clearValidaciones() {
     const res = await fetch(`${API_URL}/validaciones/all/clear`, {
       method: 'DELETE',
-      headers: headers()
+      headers: headers({}, 'DELETE')
     });
 
     if (!res.ok) throw new Error('Error limpiando validaciones');
@@ -73,7 +86,7 @@ export const apiService = {
 
     const res = await fetch(`${API_URL}/qr/regenerar`, {
       method: 'POST',
-      headers: headers(),
+      headers: headers({}, 'POST'),
       body: JSON.stringify({ userId: user.id })
     });
 
@@ -98,7 +111,7 @@ export const apiService = {
 
     const res = await fetch(`${API_URL}/carnets/${carnetId}`, {
       method: 'PATCH',
-      headers: headers(),
+      headers: headers({}, 'PATCH'),
       body: JSON.stringify(data)
     });
 
@@ -126,7 +139,7 @@ export const apiService = {
 
     const res = await fetch(`${API_URL}/carnets`, {
       method: 'POST',
-      headers: headers(),
+      headers: headers({}, 'POST'),
       body: JSON.stringify(payload)
     });
 

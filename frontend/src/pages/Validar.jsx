@@ -29,8 +29,12 @@ export default function Validar() {
 
   const user = authService.getCurrentUser();
 
+  // Cargar validaciones guardadas desde localStorage (solo este navegador)
   useEffect(() => {
-    apiService.getValidaciones().then(setValidacionesGuardadas);
+    try {
+      const saved = localStorage.getItem('identera-validaciones-guardadas');
+      if (saved) setValidacionesGuardadas(JSON.parse(saved));
+    } catch { /* ignorar datos corruptos */ }
   }, []);
 
   const readerId = 'qr-reader';
@@ -100,22 +104,22 @@ export default function Validar() {
     e.target.value = '';
   };
 
-  const guardarValidacion = async () => {
+  const guardarValidacion = () => {
     if (!resultado?.ok || !resultado?.data || guardando || guardado) return;
     setGuardando(true);
-    try {
-      const next = await apiService.saveValidacion(
-        resultado.data,
-        resultado.userId || user?.id,
-        user?.role
-      );
-      setValidacionesGuardadas(next);
-      setGuardado(true);
-    } catch (err) {
-      console.error('Error al guardar:', err);
-    } finally {
-      setGuardando(false);
-    }
+
+    const nueva = {
+      id: crypto.randomUUID(),
+      userId: resultado.userId || user?.id,
+      fecha: new Date().toISOString(),
+      data: resultado.data
+    };
+
+    const guardadas = [nueva, ...validacionesGuardadas].slice(0, MAX_GUARDADOS);
+    setValidacionesGuardadas(guardadas);
+    localStorage.setItem('identera-validaciones-guardadas', JSON.stringify(guardadas));
+    setGuardado(true);
+    setGuardando(false);
   };
 
   const formatearFecha = (iso) => {
@@ -127,8 +131,8 @@ export default function Validar() {
     }
   };
 
-  const borrarValidaciones = async () => {
-    await apiService.clearValidaciones();
+  const borrarValidaciones = () => {
+    localStorage.removeItem('identera-validaciones-guardadas');
     setValidacionesGuardadas([]);
   };
 
