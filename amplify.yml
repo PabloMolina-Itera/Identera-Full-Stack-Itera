@@ -1,4 +1,3 @@
-
 version: 1
 
 # ─── Tags del proyecto (aplicar en consola Amplify o vía CLI al crear/actualizar la app) ───
@@ -7,7 +6,9 @@ version: 1
 #   --tags \
 #     proyecto=Identera \
 #     "cliente=Itera / Preventa" \
-#     "arquitectos=Juan Pablo Molina, Andryd Ibarra" \
+#     "arquitecto=Juan Castillo" \
+#     "arquitecto2=Juan Pablo Molina" \
+#     "arquitecto3=Andryd Ibarra" \
 #     "PM=Xiomara Valencia" \
 #     "Aprobador=Sebastian Sanchez"
 

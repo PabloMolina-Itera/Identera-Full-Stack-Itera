@@ -91,16 +91,6 @@ export default function AdminDashboard() {
       const newStatus = user.status === 'enabled' ? 'disabled' : 'enabled';
       await authService.updateUserStatus(user.email, newStatus);
       toastService.success(`Usuario ${newStatus === 'enabled' ? 'habilitado' : 'inhabilitado'}`);
-
-      // Si el admin se inhabilitó a sí mismo, cerrar sesión inmediatamente
-      const currentUser = authService.getCurrentUser();
-      if (currentUser && user.email === currentUser.email && newStatus === 'disabled') {
-        authService.logout();
-        toastService.error('Te has inhabilitado. No puedes continuar.');
-        setTimeout(() => navigate('/login'), 500);
-        return;
-      }
-
       loadUsers();
     } catch (err) {
       toastService.error(err.message);
@@ -111,16 +101,6 @@ export default function AdminDashboard() {
     try {
       await authService.updateUserRole(user.email, role);
       toastService.success('Rol actualizado');
-
-      // Si el admin se cambió su propio rol, cerrar sesión inmediatamente
-      const currentUser = authService.getCurrentUser();
-      if (currentUser && user.email === currentUser.email && role !== currentUser.role) {
-        authService.logout();
-        toastService.error('Tu rol ha cambiado. Inicia sesión de nuevo.');
-        setTimeout(() => navigate('/login'), 500);
-        return;
-      }
-
       loadUsers();
     } catch (err) {
       toastService.error(err.message);

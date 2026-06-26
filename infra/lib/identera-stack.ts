@@ -7,12 +7,14 @@ import { Construct } from "constructs";
 import * as path from "path";
 
 // ─── Tags corporativos aplicados a todos los recursos del stack ───────────────
-const TAGS = {
-  proyecto:   "Identera",
-  cliente:    "Itera",
-  arquitecto: "Juan Castillo",
-  PM:         "Xiomara Valencia",
-  Aprobador:  "Sebastián Sanchez",
+const TAGS: Record<string, string> = {
+  proyecto:     "Identera",
+  cliente:      "Itera / Preventa",
+  arquitecto:   "Juan Castillo",
+  arquitecto2:  "Juan Pablo Molina",
+  arquitecto3:  "Andryd Ibarra",
+  PM:           "Xiomara Valencia",
+  Aprobador:    "Sebastian Sanchez",
 };
 
 export class IdenteraStack extends cdk.Stack {
@@ -171,10 +173,6 @@ export class IdenteraStack extends cdk.Stack {
     const rValidaciones = api.root.addResource("validaciones");
     rValidaciones.addMethod("GET",  intValidaciones); // GET  /validaciones?userId=
     rValidaciones.addMethod("POST", intValidaciones); // POST /validaciones?role=
-
-    // /validaciones/all/clear — antes de /{id} para evitar colisión de ruta
-    rValidaciones.addResource("all").addResource("clear")
-      .addMethod("DELETE", intValidaciones);           // DELETE /validaciones/all/clear
 
     rValidaciones.addResource("{id}")
       .addMethod("DELETE", intValidaciones);           // DELETE /validaciones/{id}

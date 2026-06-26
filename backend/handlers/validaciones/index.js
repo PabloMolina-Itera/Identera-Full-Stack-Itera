@@ -5,7 +5,6 @@
  *
  *   GET    /validaciones                 → lista carnets (filtra por ?userId=)
  *   POST   /validaciones?role=USUARIO    → crea / sobreescribe carnet
- *   DELETE /validaciones/all/clear       → borra todos los carnets
  *   DELETE /validaciones/{id}            → borra un carnet por id
  *
  * Comportamiento idéntico al endpoint Python (main.py) original.
@@ -17,7 +16,6 @@ const {
   crearValidacion,
   listarValidaciones,
   eliminarValidacion,
-  limpiarValidaciones,
   listarUsuarios,
   PutCommand,
   db,
@@ -170,16 +168,6 @@ exports.handler = async (event) => {
       // ── 5. Devolver lista completa (igual que el Python) ─────────────
       const resultado = await listarValidaciones();
       return ok(resultado.map(sanitizeValidacion));
-    }
-
-    // ══════════════════════════════════════════════════════════════════════
-    // DELETE /validaciones/all/clear   →   borra TODAS las validaciones
-    // IMPORTANTE: este route debe evaluarse ANTES de /{id} para que
-    // "all" no sea interpretado como un id.
-    // ══════════════════════════════════════════════════════════════════════
-    if (method === "DELETE" && segments[1] === "all" && segments[2] === "clear") {
-      await limpiarValidaciones();
-      return ok([]);
     }
 
     // ══════════════════════════════════════════════════════════════════════

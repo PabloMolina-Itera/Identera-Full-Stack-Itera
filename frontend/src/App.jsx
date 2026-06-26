@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import Landing from './pages/Landing';
@@ -13,34 +12,8 @@ import AdminCarnets from './pages/AdminCarnets';
 import { authService } from './services/authService';
 
 function RoleRoute({ children, allowedRoles }) {
-  const [verified, setVerified] = useState(false);
-  const [valid, setValid] = useState(null); // null = cargando, true = ok, false = rechazado
-
-  useEffect(() => {
-    let cancelled = false;
-    const user = authService.getCurrentUser();
-    if (!user) {
-      setValid(false);
-      setVerified(true);
-      return;
-    }
-    // Verificar contra DynamoDB que el rol no haya cambiado
-    authService.verifySession().then(ok => {
-      if (cancelled) return;
-      setValid(ok);
-      setVerified(true);
-    });
-    return () => { cancelled = true; };
-  }, []);
-
-  if (!verified) {
-    // Mientras verifica con el backend, mostrar pantalla en blanco (fracción de segundo)
-    return null;
-  }
-
-  if (!valid) return <Navigate to="/login" replace />;
-
   const user = authService.getCurrentUser();
+  if (!user) return <Navigate to="/login" replace />;
   if (allowedRoles && !allowedRoles.includes(user.role)) return <Navigate to="/" replace />;
   return children;
 }

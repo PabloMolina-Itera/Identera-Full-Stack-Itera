@@ -381,10 +381,12 @@ El stack `IdenteraStack` se define en `infra/lib/identera-stack.ts` y provisiona
 | Etiqueta | Valor |
 |---|---|
 | proyecto | Identera |
-| cliente | Itera |
+| cliente | Itera / Preventa |
 | arquitecto | Juan Castillo |
+| arquitecto2 | Juan Pablo Molina |
+| arquitecto3 | Andryd Ibarra |
 | PM | Xiomara Valencia |
-| Aprobador | Sebastián Sanchez |
+| Aprobador | Sebastian Sanchez |
 
 ### Variables de entorno de las Lambdas
 
@@ -463,9 +465,11 @@ Desarrollado y mantenido por **Itera Process** — [iteraprocess.com](https://it
 
 | Rol | Contacto |
 |---|---|
-| Arquitecto / Backend | juan.castillo |
-| Arquitecta / Frontend | andryd.ibarra |
-| Arquitecto / Backend / QA | juanpablo.molina |
+| Arquitecto / Backend | Juan Castillo |
+| Arquitecto / Backend / QA | Juan Pablo Molina |
+| Arquitecta / Frontend | Andryd Ibarra |
+| PM | Xiomara Valencia |
+| Aprobador | Sebastian Sanchez |
 
 ---
 

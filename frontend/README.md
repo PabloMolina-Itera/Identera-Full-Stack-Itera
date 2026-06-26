@@ -10,7 +10,6 @@ sequenceDiagram
     participant R as React (Frontend)
     participant A as API FastAPI (AWS Backend)
     participant D as DynamoDB
-
     
     U->>R: Interactúa con la UI (ej. Ver Carnet)
     R->>A: Petición HTTP (GET/POST a /api/...)
@@ -89,5 +88,3 @@ Al ser una aplicación **React / Vite** basada en archivos estáticos, el despli
 3. **Alojar los archivos (`dist/`)**:
    - **Opción AWS (Recomendada para un ecosistema unificado)**: Sube el contenido de la carpeta `dist/` a un **Amazon S3 Bucket** configurado como alojamiento web estático y sírvelo mediante **Amazon CloudFront** para aprovechar HTTPS y caché global rápida.
    - **Opción Vercel / Netlify**: Simplemente conecta tu repositorio de GitHub directamente a estas plataformas. Ellas detectarán automáticamente que es un proyecto de Vite y ejecutarán el script de build en cada commit a la rama principal (main/master).
-
-   hola

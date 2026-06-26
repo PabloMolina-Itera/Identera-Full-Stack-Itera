@@ -121,11 +121,6 @@ async function eliminarValidacion(id) {
   );
 }
 
-async function limpiarValidaciones() {
-  const todas = await listarValidaciones();
-  await Promise.all(todas.map((v) => eliminarValidacion(v.id)));
-}
-
 // ─── VALIDACIÓN DE API KEY ────────────────────────────────────────────────────
 // La key se configura como variable de entorno API_KEY en cada Lambda.
 // El frontend la envía en el header "x-api-key".
@@ -206,7 +201,6 @@ module.exports = {
   crearValidacion,
   listarValidaciones,
   eliminarValidacion,
-  limpiarValidaciones,
   // helpers
   ok,
   err,

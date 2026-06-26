@@ -123,10 +123,6 @@ export default function CrearQR() {
 
   const handleDescargar = async () => {
     if (!carnetRef.current) return;
-    if (!dataLoaded || !datos.nombre || datos.nombre === '—') {
-      toastService.error('Espera a que los datos se carguen antes de descargar.');
-      return;
-    }
     try {
       const canvas = await html2canvas(carnetRef.current, {
         backgroundColor: null,
@@ -163,31 +159,33 @@ export default function CrearQR() {
                   <span style={{ fontSize: '0.9rem', opacity: 0.8, display: 'block', marginBottom: '0.5rem' }}>
                     Selecciona el correo del usuario para enlazar su cuenta con este carnet de forma automática.
                   </span>
-                  <select
-                    value={targetUserId || currentUser?.id || ''}
+                  <input
+                    list="user-emails-datalist"
+                    placeholder="Escribe para buscar un correo..."
+                    value={searchEmail}
                     onChange={(e) => {
-                      const selectedId = e.target.value;
-                      if (!selectedId) return;
-                      if (selectedId === currentUser.id) {
-                        navigate('/crear');
+                      const typedEmail = e.target.value;
+                      setSearchEmail(typedEmail);
+                      if (!typedEmail) return;
+                      // Detectar si seleccionan el administrador
+                      if (typedEmail === currentUser.email) {
+                         window.location.href = '/crear';
                       } else {
-                        const userObj = usersList.find(u => u.id === selectedId);
-                        if (userObj) {
-                          navigate(`/crear?userId=${userObj.id}&nombre=${encodeURIComponent(userObj.name || '')}`);
-                        }
+                         // Buscar si el texto tipeado/seleccionado coincide con un email real
+                         const userObj = usersList.find(u => u.email === typedEmail);
+                         if (userObj) {
+                           window.location.href = `/crear?userId=${userObj.id}&nombre=${encodeURIComponent(userObj.name || '')}`;
+                         }
                       }
                     }}
                     style={{ width: '100%', padding: '0.8rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(0,0,0,0.3)', color: 'white', fontSize: '1rem' }}
-                  >
-                    <option value={currentUser?.id || ''} style={{ color: 'black' }}>
-                      Mi Carnet Propio ({currentUser?.email || 'Admin'})
-                    </option>
-                    {usersList.filter(u => u.id !== currentUser?.id).map(u => (
-                      <option key={u.id} value={u.id} style={{ color: 'black' }}>
-                        {u.name} — {u.email}
-                      </option>
+                  />
+                  <datalist id="user-emails-datalist">
+                    <option value={currentUser.email}>Mi Carnet Propio (Administrador)</option>
+                    {usersList.filter(u => u.id !== currentUser.id).map(u => (
+                      <option key={u.id} value={u.email}>{u.name}</option>
                     ))}
-                  </select>
+                  </datalist>
                 </label>
               </div>
             )}

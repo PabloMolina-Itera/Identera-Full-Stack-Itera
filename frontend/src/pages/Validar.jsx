@@ -29,12 +29,8 @@ export default function Validar() {
 
   const user = authService.getCurrentUser();
 
-  // Cargar validaciones guardadas desde localStorage (solo este navegador)
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('identera-validaciones-guardadas');
-      if (saved) setValidacionesGuardadas(JSON.parse(saved));
-    } catch { /* ignorar datos corruptos */ }
+    apiService.getValidaciones().then(setValidacionesGuardadas);
   }, []);
 
   const readerId = 'qr-reader';
@@ -104,22 +100,22 @@ export default function Validar() {
     e.target.value = '';
   };
 
-  const guardarValidacion = () => {
+  const guardarValidacion = async () => {
     if (!resultado?.ok || !resultado?.data || guardando || guardado) return;
     setGuardando(true);
-
-    const nueva = {
-      id: crypto.randomUUID(),
-      userId: resultado.userId || user?.id,
-      fecha: new Date().toISOString(),
-      data: resultado.data
-    };
-
-    const guardadas = [nueva, ...validacionesGuardadas].slice(0, MAX_GUARDADOS);
-    setValidacionesGuardadas(guardadas);
-    localStorage.setItem('identera-validaciones-guardadas', JSON.stringify(guardadas));
-    setGuardado(true);
-    setGuardando(false);
+    try {
+      const next = await apiService.saveValidacion(
+        resultado.data,
+        resultado.userId || user?.id,
+        user?.role
+      );
+      setValidacionesGuardadas(next);
+      setGuardado(true);
+    } catch (err) {
+      console.error('Error al guardar:', err);
+    } finally {
+      setGuardando(false);
+    }
   };
 
   const formatearFecha = (iso) => {
@@ -132,7 +128,6 @@ export default function Validar() {
   };
 
   const borrarValidaciones = () => {
-    localStorage.removeItem('identera-validaciones-guardadas');
     setValidacionesGuardadas([]);
   };
 
@@ -212,18 +207,7 @@ export default function Validar() {
 
           <section className="validar-imagen card">
             <h3 className="validar-section-title">Subir imagen</h3>
-            <label
-              className="upload-zone"
-              onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
-              onDrop={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const file = e.dataTransfer?.files?.[0];
-                if (file && file.type.startsWith('image/')) {
-                  handleFile({ target: { files: [file] } });
-                }
-              }}
-            >
+            <label className="upload-zone">
               <input type="file" accept="image/*" onChange={handleFile} className="upload-input" />
               <svg className="upload-icon" viewBox="0 0 24 24" width="32" height="32" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
