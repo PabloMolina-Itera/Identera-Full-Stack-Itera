@@ -30,6 +30,33 @@ export const authService = {
     localStorage.removeItem(AUTH_KEY);
   },
 
+  // Verifica contra el backend que la sesión y el rol sigan vigentes.
+  // Si el rol cambió en DynamoDB, fuerza logout para que el token local no se use.
+  async verifySession() {
+    try {
+      const local = this.getCurrentUser();
+      if (!local?.email) return false;
+
+      const res = await fetch(`${API_URL}/usuarios`, { headers: headers() });
+      if (!res.ok) return false;
+
+      const users = await res.json();
+      const fresh = users.find(u => u.id === local.id);
+
+      if (!fresh) return false;
+      if (fresh.status === 'disabled') return false;
+      if (fresh.role !== local.role) {
+        // Rol cambiado — invalidar sesión local
+        this.logout();
+        return false;
+      }
+      return true;
+    } catch {
+      // Si falla la red, permitir continuar con la sesión local
+      return true;
+    }
+  },
+
   // --- Auth ---
 
   async login(email, password) {
