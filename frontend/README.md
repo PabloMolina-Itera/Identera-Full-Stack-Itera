@@ -11,6 +11,7 @@ sequenceDiagram
     participant A as API FastAPI (AWS Backend)
     participant D as DynamoDB
     
+    
     U->>R: Interactúa con la UI (ej. Ver Carnet)
     R->>A: Petición HTTP (GET/POST a /api/...)
     A->>D: Operación de Base de Datos
