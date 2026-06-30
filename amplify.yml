@@ -12,6 +12,13 @@ version: 1
 #     "PM=Xiomara Valencia" \
 #     "Aprobador=Sebastian Sanchez"
 
+customRules:
+  # SPA rewrite: todas las rutas sin extensión de archivo → index.html
+  # Así React Router maneja /login, /crear, /validar, etc.
+  - source: </^[^.]+$|\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|woff2|ttf|map|json|webp)$)([^.]+$)/>
+    target: /index.html
+    status: 200
+
 frontend:
   phases:
     preBuild:
