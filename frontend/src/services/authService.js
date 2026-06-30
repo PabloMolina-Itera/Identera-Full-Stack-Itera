@@ -4,8 +4,8 @@
  * hacia la API desplegada en AWS.
  */
 
-const API_URL = import.meta.env.VITE_API_URL ?? '';
-const API_KEY = import.meta.env.VITE_API_KEY || null;
+const API_URL = import.meta.env.VITE_API_URL || 'https://oxedtkrjf7.execute-api.us-east-1.amazonaws.com/prod';
+const API_KEY = import.meta.env.VITE_API_KEY || 'a6276b1f7ad2b0379e7969cccba7e6bae9f39feb5bb20989a961a7a3813a40cd';
 const AUTH_KEY = 'identera-auth-user';
 
 function headers(custom = {}) {
