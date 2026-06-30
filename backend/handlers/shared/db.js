@@ -11,9 +11,7 @@ const {
   PutCommand,
   DeleteCommand,
   ScanCommand,
-  QueryCommand,
 } = require("@aws-sdk/lib-dynamodb");
-const { randomUUID } = require("crypto");
 
 const TABLE_NAME = process.env.DYNAMODB_TABLE_NAME || "IdenteraDB";
 
@@ -207,5 +205,4 @@ module.exports = {
   checkApiKey,
   sanitizeUser,
   sanitizeValidacion,
-  PutCommand,
 };

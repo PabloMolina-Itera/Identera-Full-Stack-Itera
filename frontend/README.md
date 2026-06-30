@@ -8,7 +8,7 @@ Este es el frontend oficial del proyecto **Identera**, una aplicación web const
 sequenceDiagram
     participant U as Usuario
     participant R as React (Frontend)
-    participant A as API FastAPI (AWS Backend)
+    participant A as AWS API Gateway + Lambda (Node.js)
     participant D as DynamoDB
     
     U->>R: Interactúa con la UI (ej. Ver Carnet)
@@ -54,7 +54,7 @@ sequenceDiagram
    ```
 
 2. **Configuración de Variables de Entorno**:
-   Copia el archivo `.env.example` (si existe) a `.env` y configura la URL base del backend local (generalmente apuntando al puerto `8000` de FastAPI). 
+   Copia el archivo `.env.example` (si existe) a `.env` y configura la URL base del backend local (generalmente apuntando a la URL de API Gateway). 
    Para producción, esta variable debe apuntar a la URL de AWS API Gateway.
 
 3. **Ejecutar el servidor de desarrollo**:
@@ -72,19 +72,20 @@ sequenceDiagram
 
 ## Guía de Despliegue (Producción)
 
-Al ser una aplicación **React / Vite** basada en archivos estáticos, el despliegue es sumamente sencillo. Puedes alojarlo en múltiples plataformas (como AWS S3 + CloudFront, Vercel, Netlify, Github Pages, etc.).
+El frontend se despliega en **AWS Amplify** conectado al repositorio de GitHub. Cada push a `main` dispara un build automático.
 
-### Flujo de despliegue general
+### Variables de entorno requeridas en Amplify
 
-1. **Configurar el endpoint del Backend**:
-   Asegúrate de que en el archivo `.env` o en las variables de entorno de tu proveedor de hosting (ej. `VITE_API_URL`) apunten a la URL de producción de tu API (la URL que te devolvió AWS SAM en el paso de despliegue del backend).
-   
-2. **Construir los archivos para Producción**:
-   ```bash
-   npm run build
-   ```
-   Esto generará una carpeta `dist/` en tu directorio raíz que contiene el HTML, CSS y JS optimizado, minimizado y listo para producción.
+| Variable | Valor |
+|---|---|
+| `VITE_API_URL` | `https://oxedtkrjf7.execute-api.us-east-1.amazonaws.com/prod` |
+| `VITE_API_KEY` | Clave de API Gateway para autenticación |
 
-3. **Alojar los archivos (`dist/`)**:
-   - **Opción AWS (Recomendada para un ecosistema unificado)**: Sube el contenido de la carpeta `dist/` a un **Amazon S3 Bucket** configurado como alojamiento web estático y sírvelo mediante **Amazon CloudFront** para aprovechar HTTPS y caché global rápida.
-   - **Opción Vercel / Netlify**: Simplemente conecta tu repositorio de GitHub directamente a estas plataformas. Ellas detectarán automáticamente que es un proyecto de Vite y ejecutarán el script de build en cada commit a la rama principal (main/master).
+### Build local para prueba
+
+```bash
+npm run build    # Genera dist/ con los archivos optimizados
+npm run preview  # Sirve dist/ localmente en http://localhost:4173
+```
+
+El archivo `amplify.yml` en la raíz del proyecto contiene la configuración de build y las reglas de rewrite SPA.

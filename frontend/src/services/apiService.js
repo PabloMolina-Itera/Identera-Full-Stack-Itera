@@ -76,12 +76,6 @@ export const apiService = {
     return res.json();
   },
 
-  // Alias usado por MisCarnets.jsx → handleRegenerateQR
-  // Edita campos del carnet vía PATCH /carnets/{id}
-  async updateValidacion(carnetId, data) {
-    return this.editarCarnet(carnetId, data);
-  },
-
   async editarCarnet(carnetId, data) {
     if (!carnetId) {
       throw new Error('Falta el ID del carnet');

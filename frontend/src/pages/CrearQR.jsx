@@ -5,14 +5,8 @@ import CarnetCard from '../components/CarnetCard';
 import { apiService } from '../services/apiService';
 import { authService } from '../services/authService';
 import { toastService } from '../components/toastService';
+import { generateCodigoValidador } from '../utils/carnetUtils';
 import './CrearQR.css';
-
-const generateCodigoValidador = () => {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let code = '';
-  for (let i = 0; i < 8; i++) code += chars[Math.floor(Math.random() * chars.length)];
-  return code;
-};
 
 export default function CrearQR() {
   const navigate = useNavigate();

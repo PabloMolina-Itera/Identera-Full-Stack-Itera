@@ -2,31 +2,31 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Identera: Backend (8000)",
-      "type": "shell",
-      "command": "python -m uvicorn main:app --host 127.0.0.1 --port 8000 --reload",
-      "options": {
-        "cwd": "${workspaceFolder}/backend"
-      },
-      "isBackground": true,
-      "problemMatcher": []
-    },
-    {
-      "label": "Identera: Frontend (5173)",
+      "label": "Identera: Frontend Dev (5173)",
       "type": "shell",
       "command": "npm run dev",
       "options": {
-        "cwd": "${workspaceFolder}/co-itera-identera-astro"
+        "cwd": "${workspaceFolder}/frontend"
       },
       "isBackground": true,
       "problemMatcher": []
     },
     {
-      "label": "Identera: Todo (puertos fijos)",
-      "dependsOn": [
-        "Identera: Backend (8000)",
-        "Identera: Frontend (5173)"
-      ],
+      "label": "Identera: Frontend Build",
+      "type": "shell",
+      "command": "npm run build",
+      "options": {
+        "cwd": "${workspaceFolder}/frontend"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Identera: CDK Deploy (infra)",
+      "type": "shell",
+      "command": "npm run cdk deploy",
+      "options": {
+        "cwd": "${workspaceFolder}/infra"
+      },
       "problemMatcher": []
     }
   ]

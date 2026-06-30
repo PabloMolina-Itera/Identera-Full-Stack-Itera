@@ -4,6 +4,7 @@ import CarnetCard from '../components/CarnetCard';
 import { apiService } from '../services/apiService';
 import { authService } from '../services/authService';
 import { useScanner } from '../hooks/useScanner';
+import { formatearFecha } from '../utils/carnetUtils';
 import './Validar.css';
 
 const MAX_GUARDADOS = 50;
@@ -115,15 +116,6 @@ export default function Validar() {
       console.error('Error al guardar:', err);
     } finally {
       setGuardando(false);
-    }
-  };
-
-  const formatearFecha = (iso) => {
-    try {
-      const d = new Date(iso);
-      return d.toLocaleDateString('es', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
-    } catch {
-      return iso;
     }
   };
 

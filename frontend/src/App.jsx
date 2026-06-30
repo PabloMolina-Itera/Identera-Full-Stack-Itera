@@ -9,6 +9,7 @@ import MisCarnets from './pages/MisCarnets';
 import EscaneoMasa from './pages/EscaneoMasa';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminCarnets from './pages/AdminCarnets';
+import NotFound from './pages/NotFound';
 import { authService } from './services/authService';
 
 function RoleRoute({ children, allowedRoles }) {
@@ -59,6 +60,7 @@ function App() {
             path="admin-carnets" 
             element={ <RoleRoute allowedRoles={['ADMINISTRADOR']}><AdminCarnets /></RoleRoute> } 
           />
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
     </HashRouter>

@@ -37,7 +37,7 @@ export default function MisCarnets() {
     try {
       const nuevoCodigo = generateCodigoValidador();
       const updatedData = { ...item.data, codigoValidador: nuevoCodigo };
-      const updatedItem = await apiService.updateValidacion(item.id, updatedData);
+      const updatedItem = await apiService.editarCarnet(item.id, updatedData);
       
       const updatedCarnets = carnets.map(c => c.id === item.id ? updatedItem : c);
       setCarnets(updatedCarnets);
@@ -85,7 +85,6 @@ export default function MisCarnets() {
                         tipo: 'carnet', 
                         codigoValidador: data?.codigoValidador || '---' 
                       })} 
-                      isMini={true} 
                     />
                   </div>
                   <div className="carnet-info">
