@@ -87,6 +87,8 @@
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
   flex-shrink: 0;
   background: #2a2a2a;
+  -webkit-user-drag: none;
+  user-select: none;
 }
 
 .carnet-card-wrap .carnet-foto-placeholder {
