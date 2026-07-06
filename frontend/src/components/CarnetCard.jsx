@@ -29,7 +29,7 @@ export default function CarnetCard({ datos, payload = null }) {
   const esValidado = !payload;
 
   return (
-    <div className="carnet-card-wrap" draggable="false">
+    <div className="carnet-card-wrap" draggable="false" onDragStart={(e) => e.preventDefault()}>
       <div className="carnet carnet-card">
 
         <div className="carnet-header">
