@@ -143,7 +143,7 @@
   border-radius: var(--radius);
   background: var(--bg);
   cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
   flex: 1;
   min-height: 180px;
 }
@@ -151,6 +151,13 @@
 .upload-zone:hover {
   border-color: var(--accent);
   background: var(--surface);
+}
+
+.upload-zone-dragging {
+  border-color: var(--primary) !important;
+  background: rgba(91, 108, 249, 0.08) !important;
+  transform: scale(1.02);
+  box-shadow: 0 0 20px rgba(91, 108, 249, 0.15);
 }
 
 .upload-input {
