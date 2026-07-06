@@ -2,6 +2,13 @@
   display: flex;
   justify-content: center;
   padding: 1rem 0;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+.carnet-card-wrap * {
+  -webkit-user-drag: none !important;
+  user-select: none !important;
 }
 
 .carnet-card-wrap .carnet {
