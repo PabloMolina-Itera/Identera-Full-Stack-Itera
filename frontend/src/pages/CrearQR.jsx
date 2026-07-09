@@ -51,6 +51,16 @@ export default function CrearQR() {
 
   useEffect(() => {
     async function checkExisting() {
+      // Resetear formulario antes de cargar datos del nuevo usuario
+      setNombre('');
+      setCargo('');
+      setArl('');
+      setEps('');
+      setCedula('');
+      setFoto(null);
+      setIsEditing(false);
+      setDataLoaded(false);
+
       if (currentUser && targetUserId) {
         const data = await apiService.getValidaciones(targetUserId);
         if (data && data.length > 0) {
@@ -62,14 +72,13 @@ export default function CrearQR() {
           setCedula(c.cedula !== '—' ? c.cedula : '');
           setCodigoValidador(c.codigoValidador);
           if (c.foto) setFoto(c.foto);
-
           setIsEditing(true);
         }
       }
       setDataLoaded(true);
     }
     checkExisting();
-  }, []);
+  }, [targetUserId]);
 
   // 2. Se prepara el texto que irá dentro del dibujo del QR.
   // Cada vez que 'codigoValidador' cambia, este payload se recrea.
