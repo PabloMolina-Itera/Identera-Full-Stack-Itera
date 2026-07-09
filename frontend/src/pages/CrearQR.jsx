@@ -156,34 +156,83 @@ export default function CrearQR() {
                   <span style={{ fontSize: '0.9rem', opacity: 0.8, display: 'block', marginBottom: '0.5rem' }}>
                     Selecciona el correo del usuario para enlazar su cuenta con este carnet de forma automática.
                   </span>
-                  <input
-                    list="user-emails-datalist"
-                    placeholder="Escribe para buscar un correo..."
-                    value={searchEmail}
-                    onChange={(e) => {
-                      const typedEmail = e.target.value;
-                      setSearchEmail(typedEmail);
-                      if (!typedEmail) return;
-                      // Detectar si seleccionan el administrador
-                      if (typedEmail === currentUser.email) {
-                         window.location.href = '/crear';
-                      } else {
-                         // Buscar si el texto tipeado/seleccionado coincide con un email real
-                         const userObj = usersList.find(u => u.email === typedEmail);
-                         if (userObj) {
-                           window.location.href = `/crear?userId=${userObj.id}&nombre=${encodeURIComponent(userObj.name || '')}`;
-                         }
-                      }
-                    }}
-                    style={{ width: '100%', padding: '0.8rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(0,0,0,0.3)', color: 'white', fontSize: '1rem' }}
-                  />
-                  <datalist id="user-emails-datalist">
-                    <option value={currentUser.email}>Mi Carnet Propio (Administrador)</option>
-                    {usersList.filter(u => u.id !== currentUser.id).map(u => (
-                      <option key={u.id} value={u.email}>{u.name}</option>
-                    ))}
-                  </datalist>
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    <input
+                      list="user-emails-datalist"
+                      placeholder="Escribe para buscar un correo..."
+                      value={searchEmail}
+                      onChange={(e) => setSearchEmail(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          const match = usersList.find(u => u.email.toLowerCase() === searchEmail.toLowerCase());
+                          if (match && match.id !== currentUser.id) {
+                            navigate(`/crear?userId=${match.id}&nombre=${encodeURIComponent(match.name || '')}`);
+                          } else if (searchEmail.toLowerCase() === currentUser.email.toLowerCase()) {
+                            navigate('/crear');
+                          }
+                        }
+                      }}
+                      style={{ flex: 1, padding: '0.8rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(0,0,0,0.3)', color: 'white', fontSize: '1rem' }}
+                    />
+                    <button
+                      type="button"
+                      className="btn primary"
+                      onClick={() => {
+                        const match = usersList.find(u => u.email.toLowerCase() === searchEmail.toLowerCase());
+                        if (match && match.id !== currentUser.id) {
+                          navigate(`/crear?userId=${match.id}&nombre=${encodeURIComponent(match.name || '')}`);
+                        } else if (searchEmail.toLowerCase() === currentUser.email.toLowerCase()) {
+                          navigate('/crear');
+                        }
+                      }}
+                      style={{ padding: '0.8rem 1.2rem', whiteSpace: 'nowrap', fontSize: '0.9rem' }}
+                    >
+                      Asignar
+                    </button>
+                  </div>
+                  {searchEmail && (() => {
+                    const sugerencias = usersList.filter(u =>
+                      u.email.toLowerCase().includes(searchEmail.toLowerCase()) &&
+                      u.email.toLowerCase() !== searchEmail.toLowerCase()
+                    ).slice(0, 5);
+                    if (sugerencias.length === 0) return null;
+                    return (
+                      <div style={{ marginTop: '0.4rem', display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                        {sugerencias.map(u => (
+                          <button
+                            key={u.id}
+                            type="button"
+                            onClick={() => {
+                              if (u.id !== currentUser.id) {
+                                navigate(`/crear?userId=${u.id}&nombre=${encodeURIComponent(u.name || '')}`);
+                              } else {
+                                navigate('/crear');
+                              }
+                            }}
+                            style={{
+                              padding: '0.3rem 0.7rem',
+                              fontSize: '0.8rem',
+                              borderRadius: '20px',
+                              border: '1px solid rgba(91,108,249,0.3)',
+                              background: 'rgba(91,108,249,0.1)',
+                              color: 'var(--primary)',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            {u.email}
+                          </button>
+                        ))}
+                      </div>
+                    );
+                  })()}
                 </label>
+                <datalist id="user-emails-datalist">
+                  <option value={currentUser.email}>Mi Carnet Propio (Administrador)</option>
+                  {usersList.filter(u => u.id !== currentUser.id).map(u => (
+                    <option key={u.id} value={u.email}>{u.name}</option>
+                  ))}
+                </datalist>
               </div>
             )}
 
