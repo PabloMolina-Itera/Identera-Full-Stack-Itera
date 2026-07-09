@@ -124,14 +124,7 @@ export default function Landing() {
       </div>
 
       <section className="public-hero-section">
-        <h1 className="public-hero-title" style={{ 
-          letterSpacing: '-0.04em',
-          color: 'transparent', 
-          backgroundClip: 'text', 
-          WebkitBackgroundClip: 'text', 
-          backgroundImage: 'linear-gradient(180deg, #ffffff 0%, #94a3b8 100%)',
-          textShadow: '0 4px 20px rgba(0,0,0,0.1)'
-        }}>
+        <h1 className="public-hero-title">
           Control de Acceso <br />
           <span style={{ 
             fontSize: '1.3em', 
