@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CarnetCard from '../components/CarnetCard';
+import { apiService } from '../services/apiService';
 import { authService } from '../services/authService';
 import { useScanner } from '../hooks/useScanner';
 import { formatearFecha } from '../utils/carnetUtils';
@@ -71,12 +72,35 @@ export default function Validar() {
         setResultado({ ok: false, error: 'No es un carnet válido de Identera.' });
         return;
       }
-      if (!payload.nombre) {
-        setResultado({ ok: false, error: `Carnet #${payload.codigoValidador} no contiene datos válidos.` });
+
+      // QR nuevo: contiene todos los datos embebidos
+      if (payload.nombre) {
+        setResultado({ ok: true, data: payload, userId: payload.userId });
+        detenerCamara();
         return;
       }
-      setResultado({ ok: true, data: payload, userId: payload.userId });
-      detenerCamara();
+
+      // QR antiguo (solo codigoValidador): buscar en localStorage primero
+      const locales = leerValidaciones();
+      const matchLocal = locales.find(v => v?.data?.codigoValidador === payload.codigoValidador);
+      if (matchLocal && matchLocal.data.nombre) {
+        setResultado({ ok: true, data: matchLocal.data, userId: matchLocal.userId });
+        detenerCamara();
+        return;
+      }
+
+      // Fallback: buscar en API (QR antiguo aún no regenerado)
+      try {
+        const todos = await apiService.getValidaciones();
+        const matchApi = todos.find(c => c?.data?.codigoValidador === payload.codigoValidador);
+        if (matchApi && matchApi.data.nombre) {
+          setResultado({ ok: true, data: matchApi.data, userId: matchApi.userId });
+          detenerCamara();
+          return;
+        }
+      } catch { /* API no disponible, continuar */ }
+
+      setResultado({ ok: false, error: `Carnet #${payload.codigoValidador} no encontrado. Pide a la persona que regenere su QR desde Mis Carnets.` });
     } catch {
       setResultado({ ok: false, error: 'El QR no contiene un formato reconocido.' });
     } finally {

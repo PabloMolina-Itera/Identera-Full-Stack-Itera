@@ -79,12 +79,17 @@ export default function MisCarnets() {
               return (
                 <div key={id} className="carnet-item-card glass">
                   <div className="carnet-miniature">
-                    <CarnetCard 
-                      datos={data} 
-                      payload={JSON.stringify({ 
-                        tipo: 'carnet', 
-                        codigoValidador: data?.codigoValidador || '---' 
-                      })} 
+                    <CarnetCard
+                      datos={data}
+                      payload={JSON.stringify({
+                        tipo: 'carnet',
+                        codigoValidador: data?.codigoValidador || '---',
+                        nombre: data?.nombre || '',
+                        cargo: data?.cargo || '',
+                        arl: data?.arl || '',
+                        eps: data?.eps || '',
+                        cedula: data?.cedula || '',
+                      })}
                     />
                   </div>
                   <div className="carnet-info">

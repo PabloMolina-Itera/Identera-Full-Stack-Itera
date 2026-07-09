@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useScanner } from '../hooks/useScanner';
+import { apiService } from '../services/apiService';
 import { toastService } from '../components/toastService';
 import './EscaneoMasa.css';
 
@@ -41,27 +42,57 @@ export default function EscaneoMasa() {
 
       if (!codigo || payload.tipo !== 'carnet') throw new Error('QR No válido');
 
-      // El QR contiene todos los datos del carnet; los usamos directamente
-      if (payload.nombre) {
+      const logSuccess = (nombre) => {
         const newLog = {
           id: crypto.randomUUID(),
-          nombre: payload.nombre,
+          nombre,
           hora: new Date().toLocaleTimeString(),
           status: 'success'
         };
         setLogs(prev => [newLog, ...prev.slice(0, 19)]);
         setSuccessCount(prev => prev + 1);
-        toastService.success(`¡Validado: ${payload.nombre}! (Escaneado con éxito, pasa al siguiente)`);
-      } else {
+        toastService.success(`¡Validado: ${nombre}! (Escaneado con éxito, pasa al siguiente)`);
+      };
+
+      const logError = (msg) => {
         const newLog = {
           id: crypto.randomUUID(),
-          nombre: `Carnet sin nombre: #${codigo}`,
+          nombre: msg,
           hora: new Date().toLocaleTimeString(),
           status: 'error'
         };
         setLogs(prev => [newLog, ...prev.slice(0, 19)]);
-        toastService.error('QR con datos incompletos.');
+        toastService.error(msg);
+      };
+
+      // QR nuevo: contiene todos los datos embebidos
+      if (payload.nombre) {
+        logSuccess(payload.nombre);
+        return;
       }
+
+      // QR antiguo (solo codigoValidador): buscar en localStorage
+      try {
+        const raw = localStorage.getItem('identera_validaciones');
+        const locales = raw ? JSON.parse(raw) : [];
+        const matchLocal = locales.find(v => v?.data?.codigoValidador === codigo);
+        if (matchLocal && matchLocal.data.nombre) {
+          logSuccess(matchLocal.data.nombre);
+          return;
+        }
+      } catch { /* ignorar error de parse */ }
+
+      // Fallback: buscar en API (QR antiguo aún no regenerado)
+      try {
+        const todos = await apiService.getValidaciones();
+        const matchApi = todos.find(c => c?.data?.codigoValidador === codigo);
+        if (matchApi && matchApi.data.nombre) {
+          logSuccess(matchApi.data.nombre);
+          return;
+        }
+      } catch { /* API no disponible */ }
+
+      logError(`QR no registrado: #${codigo}. Regenere el carnet.`);
     } catch (err) {
       console.warn('QR ignorado: formato incorrecto');
     }

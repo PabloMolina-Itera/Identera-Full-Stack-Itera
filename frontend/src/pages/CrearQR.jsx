@@ -71,19 +71,22 @@ export default function CrearQR() {
     checkExisting();
   }, []);
 
-  // 2. Se prepara el texto que irá dentro del dibujo del QR. 
+  // 2. Se prepara el texto que irá dentro del dibujo del QR.
   // Cada vez que 'codigoValidador' cambia, este payload se recrea.
   const payload = useMemo(() => {
-    // El QR solo debe contener la llave para validar, no toda la información,
-    // especialmente evitando imágenes en base64 que rompen el límite del QR.
+    // El QR contiene los datos de texto del carnet para validación sin backend.
+    // La foto se excluye para no exceder el límite de tamaño del QR.
     const qrData = {
       tipo: 'carnet',
-      // Aquí se inyecta el código generado (Ej: 9SBUJLBE)
       codigoValidador: codigoValidador,
+      nombre: nombre || '',
+      cargo: cargo || '',
+      arl: arl || '',
+      eps: eps || '',
+      cedula: cedula || '',
     };
-    // El QR espera un texto plano, así que convertimos el objeto a string
     return JSON.stringify(qrData);
-  }, [codigoValidador]);
+  }, [codigoValidador, nombre, cargo, arl, eps, cedula]);
 
   const handleRegenerarCodigo = () => {
     // Al setear un nuevo valor aleatorio, React vuelve a calcular el 'payload' y el dibujo cambia
