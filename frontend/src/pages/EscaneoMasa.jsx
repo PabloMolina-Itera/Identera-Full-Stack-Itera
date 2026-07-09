@@ -1,7 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useScanner } from '../hooks/useScanner';
-import { apiService } from '../services/apiService';
 import { toastService } from '../components/toastService';
 import './EscaneoMasa.css';
 
@@ -39,37 +38,31 @@ export default function EscaneoMasa() {
     try {
       const payload = JSON.parse(decodedText);
       const codigo = payload.codigoValidador;
-      
-      if (!codigo) throw new Error('QR No válido');
 
-      // Buscar si el carnet existe en la base de datos
-      const todosLosCarnets = await apiService.getValidaciones();
-      const carnetReal = todosLosCarnets.find(c => c?.data?.codigoValidador === codigo);
+      if (!codigo || payload.tipo !== 'carnet') throw new Error('QR No válido');
 
-      if (carnetReal) {
-        // Encontrado: Es un carnet válido del sistema
+      // El QR contiene todos los datos del carnet; los usamos directamente
+      if (payload.nombre) {
         const newLog = {
           id: crypto.randomUUID(),
-          nombre: carnetReal.data.nombre || 'Sin Nombre',
+          nombre: payload.nombre,
           hora: new Date().toLocaleTimeString(),
           status: 'success'
         };
         setLogs(prev => [newLog, ...prev.slice(0, 19)]);
         setSuccessCount(prev => prev + 1);
-        toastService.success(`¡Validado: ${carnetReal.data.nombre}! (Escaneado con éxito, pasa al siguiente)`);
+        toastService.success(`¡Validado: ${payload.nombre}! (Escaneado con éxito, pasa al siguiente)`);
       } else {
-        // No encontrado: QR con estructura correcta pero no registrado aquí
         const newLog = {
           id: crypto.randomUUID(),
-          nombre: `Código desconocido: #${codigo}`,
+          nombre: `Carnet sin nombre: #${codigo}`,
           hora: new Date().toLocaleTimeString(),
           status: 'error'
         };
         setLogs(prev => [newLog, ...prev.slice(0, 19)]);
-        toastService.error('QR no registrado en el sistema.');
+        toastService.error('QR con datos incompletos.');
       }
     } catch (err) {
-      // Ignorar QRs que ni siquiera son de nuestra App
       console.warn('QR ignorado: formato incorrecto');
     }
   }, []);

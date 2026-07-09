@@ -1,13 +1,28 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CarnetCard from '../components/CarnetCard';
-import { apiService } from '../services/apiService';
 import { authService } from '../services/authService';
 import { useScanner } from '../hooks/useScanner';
 import { formatearFecha } from '../utils/carnetUtils';
 import './Validar.css';
 
 const MAX_GUARDADOS = 50;
+const LS_KEY = 'identera_validaciones';
+
+function leerValidaciones() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function guardarValidaciones(lista) {
+  const limitadas = lista.slice(0, MAX_GUARDADOS);
+  localStorage.setItem(LS_KEY, JSON.stringify(limitadas));
+  return limitadas;
+}
 
 function ResultadoInvalido({ resultado }) {
   if (!resultado) return null;
@@ -32,7 +47,7 @@ export default function Validar() {
   const user = authService.getCurrentUser();
 
   useEffect(() => {
-    apiService.getValidaciones().then(setValidacionesGuardadas);
+    setValidacionesGuardadas(leerValidaciones());
   }, []);
 
   const readerId = 'qr-reader';
@@ -47,7 +62,6 @@ export default function Validar() {
   } = useScanner(readerId);
 
   const onScanSuccess = useCallback(async (decodedText) => {
-    // Evitar procesar el mismo escaneo dos veces
     if (scanLockRef.current) return;
     scanLockRef.current = true;
 
@@ -57,18 +71,15 @@ export default function Validar() {
         setResultado({ ok: false, error: 'No es un carnet válido de Identera.' });
         return;
       }
-      const validations = await apiService.getValidaciones();
-      const carnetReal = validations.find(c => c?.data?.codigoValidador === payload.codigoValidador);
-      if (carnetReal && carnetReal.data.nombre) {
-        setResultado({ ok: true, data: carnetReal.data, userId: carnetReal.userId });
-        detenerCamara();
-      } else {
-        setResultado({ ok: false, error: `Carnet #${payload.codigoValidador} no encontrado en registros válidos.` });
+      if (!payload.nombre) {
+        setResultado({ ok: false, error: `Carnet #${payload.codigoValidador} no contiene datos válidos.` });
+        return;
       }
+      setResultado({ ok: true, data: payload, userId: payload.userId });
+      detenerCamara();
     } catch {
       setResultado({ ok: false, error: 'El QR no contiene un formato reconocido.' });
     } finally {
-      // Liberar el lock después de un breve delay para evitar rebotes
       setTimeout(() => { scanLockRef.current = false; }, 1500);
     }
   }, [detenerCamara]);
@@ -125,25 +136,26 @@ export default function Validar() {
     if (file) procesarArchivo(file);
   };
 
-  const guardarValidacion = async () => {
+  const guardarValidacion = () => {
     if (!resultado?.ok || !resultado?.data || guardando || guardado) return;
     setGuardando(true);
-    try {
-      const next = await apiService.saveValidacion(
-        resultado.data,
-        resultado.userId || user?.id,
-        user?.role
-      );
-      setValidacionesGuardadas(next);
-      setGuardado(true);
-    } catch (err) {
-      console.error('Error al guardar:', err);
-    } finally {
-      setGuardando(false);
-    }
+
+    const nueva = {
+      id: crypto.randomUUID(),
+      userId: resultado.userId || user?.id,
+      fecha: new Date().toISOString(),
+      data: resultado.data
+    };
+
+    const actuales = leerValidaciones();
+    const next = guardarValidaciones([nueva, ...actuales]);
+    setValidacionesGuardadas(next);
+    setGuardado(true);
+    setGuardando(false);
   };
 
   const borrarValidaciones = () => {
+    localStorage.removeItem(LS_KEY);
     setValidacionesGuardadas([]);
   };
 

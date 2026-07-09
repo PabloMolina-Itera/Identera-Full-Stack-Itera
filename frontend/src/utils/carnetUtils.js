@@ -1,5 +1,3 @@
-import { apiService } from '../services/apiService';
-
 /**
  * Genera un código alfanumérico aleatorio de 8 caracteres.
  * Esta función se usa tanto al crear un nuevo QR como al "Regenerar QR".
@@ -14,19 +12,12 @@ export const generateCodigoValidador = () => {
 
 /**
  * Recibe el contenido en texto plano del QR y lo parsea a un objeto válido.
- * Además, cruza con la base de datos (apiService) para traer la foto si está disponible localmente.
+ * Los datos del carnet viajan embebidos en el QR; no se requiere cruce con BD.
  */
-export async function parseCarnetPayload(text) {
+export function parseCarnetPayload(text) {
   try {
     const data = JSON.parse(text);
-    if (data.tipo === 'carnet' && data.codigoValidador) {
-      // Cruzar la data para traer la imagen desde BD si existe
-      const list = await apiService.getValidaciones();
-      const savedMatch = list.find((v) => v.data.codigoValidador === data.codigoValidador);
-      
-      if (savedMatch && savedMatch.data.foto) {
-        data.foto = savedMatch.data.foto;
-      }
+    if (data.tipo === 'carnet' && data.codigoValidador && data.nombre) {
       return { ok: true, data };
     }
     return { ok: false, error: 'No es un carnet válido de Identera.' };
