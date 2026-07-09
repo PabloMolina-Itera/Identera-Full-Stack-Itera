@@ -100,6 +100,17 @@ export default function AdminDashboard() {
   const changeRole = async (user, role) => {
     try {
       await authService.updateUserRole(user.email, role);
+
+      // Si el admin cambia su propio rol, actualizar sesión local
+      const currentUser = authService.getCurrentUser();
+      if (currentUser && currentUser.id === user.id) {
+        const updatedUser = { ...currentUser, role };
+        localStorage.setItem('identera-auth-user', JSON.stringify(updatedUser));
+        toastService.success('Rol actualizado. Recargando...');
+        setTimeout(() => window.location.reload(), 800);
+        return;
+      }
+
       toastService.success('Rol actualizado');
       loadUsers();
     } catch (err) {
