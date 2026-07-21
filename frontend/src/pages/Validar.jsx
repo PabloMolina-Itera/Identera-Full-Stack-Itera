@@ -73,9 +73,32 @@ export default function Validar() {
         return;
       }
 
-      // QR nuevo: contiene todos los datos embebidos
+      // QR nuevo: contiene todos los datos embebidos (excepto la foto, que se
+      // excluye del QR por tamaño). Hay que buscarla en localStorage o API.
       if (payload.nombre) {
-        setResultado({ ok: true, data: payload, userId: payload.userId });
+        let dataConFoto = { ...payload };
+
+        // 1) Intentar recuperar la foto desde localStorage
+        const locales = leerValidaciones();
+        const matchLocal = locales.find(
+          v => v?.data?.codigoValidador === payload.codigoValidador && v?.data?.foto
+        );
+        if (matchLocal) {
+          dataConFoto.foto = matchLocal.data.foto;
+        } else {
+          // 2) Fallback: buscar la foto en la API
+          try {
+            const todos = await apiService.getValidaciones();
+            const matchApi = todos.find(
+              c => c?.data?.codigoValidador === payload.codigoValidador && c?.data?.foto
+            );
+            if (matchApi) {
+              dataConFoto.foto = matchApi.data.foto;
+            }
+          } catch { /* API no disponible, se muestra sin foto */ }
+        }
+
+        setResultado({ ok: true, data: dataConFoto, userId: payload.userId });
         detenerCamara();
         return;
       }
