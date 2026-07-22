@@ -8,10 +8,26 @@ import { authService } from './authService';
 const API_URL = import.meta.env.VITE_API_URL || 'https://oxedtkrjf7.execute-api.us-east-1.amazonaws.com/prod';
 const API_KEY = import.meta.env.VITE_API_KEY || 'a6276b1f7ad2b0379e7969cccba7e6bae9f39feb5bb20989a961a7a3813a40cd';
 
+const FETCH_TIMEOUT_MS = 8000; // 8 segundos máximo para cada llamada a la API
+
 function headers(custom = {}) {
   const h = { 'Content-Type': 'application/json', ...custom };
   if (API_KEY) h['x-api-key'] = API_KEY;
   return h;
+}
+
+/**
+ * fetch con timeout. Si la respuesta no llega en `timeoutMs` ms, aborta.
+ */
+async function fetchWithTimeout(url, options = {}, timeoutMs = FETCH_TIMEOUT_MS) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { ...options, signal: controller.signal });
+    return res;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 export const apiService = {
@@ -22,8 +38,8 @@ export const apiService = {
       url += `?userId=${encodeURIComponent(userId)}`;
     }
 
-    const res = await fetch(url, { headers: headers() });
-    if (!res.ok) throw new Error("Fallo al conectarse al Backend");
+    const res = await fetchWithTimeout(url, { headers: headers() });
+    if (!res.ok) throw new Error(`Error del servidor (${res.status}): ${res.statusText}`);
     return res.json();
   },
 
@@ -35,13 +51,16 @@ export const apiService = {
       data
     };
 
-    const res = await fetch(`${API_URL}/validaciones?role=${role || 'USUARIO'}`, {
+    const res = await fetchWithTimeout(`${API_URL}/validaciones?role=${role || 'USUARIO'}`, {
       method: 'POST',
       headers: headers(),
       body: JSON.stringify(payload)
     });
 
-    if (!res.ok) throw new Error('Error al guardar el carnet');
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}));
+      throw new Error(errBody.detail || `Error al guardar el carnet (${res.status})`);
+    }
     return res.json();
   },
 

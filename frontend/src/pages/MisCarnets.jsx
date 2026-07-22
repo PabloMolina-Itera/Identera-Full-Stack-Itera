@@ -89,6 +89,7 @@ export default function MisCarnets() {
                         arl: data?.arl || '',
                         eps: data?.eps || '',
                         cedula: data?.cedula || '',
+                        userId: item?.userId || '',
                       })}
                     />
                   </div>

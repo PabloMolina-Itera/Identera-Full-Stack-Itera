@@ -88,14 +88,19 @@ export default function Validar() {
         } else {
           // 2) Fallback: buscar la foto en la API
           try {
-            const todos = await apiService.getValidaciones();
+            // Si el QR incluye userId, filtramos para reducir la respuesta
+            const todos = await apiService.getValidaciones(payload.userId || null);
             const matchApi = todos.find(
               c => c?.data?.codigoValidador === payload.codigoValidador && c?.data?.foto
             );
             if (matchApi) {
               dataConFoto.foto = matchApi.data.foto;
+            } else {
+              console.warn('[Validar] Carnet encontrado en API pero sin foto guardada. ¿Se guardó correctamente al crear el carnet?');
             }
-          } catch { /* API no disponible, se muestra sin foto */ }
+          } catch (err) {
+            console.error('[Validar] No se pudo recuperar la foto desde la API:', err.message || err);
+          }
         }
 
         setResultado({ ok: true, data: dataConFoto, userId: payload.userId });
@@ -121,7 +126,9 @@ export default function Validar() {
           detenerCamara();
           return;
         }
-      } catch { /* API no disponible, continuar */ }
+      } catch (err) {
+        console.error('[Validar] No se pudo consultar la API para QR antiguo:', err.message || err);
+      }
 
       setResultado({ ok: false, error: `Carnet #${payload.codigoValidador} no encontrado. Pide a la persona que regenere su QR desde Mis Carnets.` });
     } catch {

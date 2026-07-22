@@ -85,6 +85,7 @@ export default function CrearQR() {
   const payload = useMemo(() => {
     // El QR contiene los datos de texto del carnet para validación sin backend.
     // La foto se excluye para no exceder el límite de tamaño del QR.
+    // El userId se incluye para que Validar.jsx pueda filtrar la búsqueda en la API.
     const qrData = {
       tipo: 'carnet',
       codigoValidador: codigoValidador,
@@ -93,9 +94,10 @@ export default function CrearQR() {
       arl: arl || '',
       eps: eps || '',
       cedula: cedula || '',
+      userId: targetUserId || '',
     };
     return JSON.stringify(qrData);
-  }, [codigoValidador, nombre, cargo, arl, eps, cedula]);
+  }, [codigoValidador, nombre, cargo, arl, eps, cedula, targetUserId]);
 
   const handleRegenerarCodigo = () => {
     // Al setear un nuevo valor aleatorio, React vuelve a calcular el 'payload' y el dibujo cambia
@@ -115,15 +117,20 @@ export default function CrearQR() {
   const carnetRef = useRef(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const timer = setTimeout(async () => {
       if (dataLoaded && datos.nombre !== '—' && datos.nombre.length > 1) {
         if (currentUser && targetUserId) {
           const targetRole = (targetUserId === currentUser?.id) ? currentUser.role : 'USUARIO';
-          apiService.saveValidacion(datos, targetUserId, targetRole);
+          try {
+            await apiService.saveValidacion(datos, targetUserId, targetRole);
+          } catch (err) {
+            console.error('[CrearQR] Error al guardar el carnet en la API:', err.message || err);
+            toastService.error('No se pudo guardar el carnet en el servidor. La foto no estará disponible al validar.');
+          }
         }
       }
     }, 1000); // Debounce de 1 segundo para evitar saturar o corromper la BD
-    
+
     return () => clearTimeout(timer);
   }, [JSON.stringify(datos), dataLoaded, targetUserId, currentUser]);
 
