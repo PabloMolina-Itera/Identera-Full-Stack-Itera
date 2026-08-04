@@ -219,8 +219,6 @@ export default function CrearQR() {
                         display: 'flex',
                         flexDirection: 'column',
                         gap: '0.5rem',
-                        maxHeight: '280px',
-                        overflowY: 'auto',
                       }}>
                         {sugerencias.map(u => (
                           <button
@@ -242,10 +240,12 @@ export default function CrearQR() {
                               color: 'var(--primary)',
                               cursor: 'pointer',
                               textAlign: 'left',
-                              wordBreak: 'break-all',
-                              lineHeight: '1.4',
                               width: '100%',
                               boxSizing: 'border-box',
+                              whiteSpace: 'normal',
+                              wordBreak: 'break-word',
+                              overflowWrap: 'break-word',
+                              lineHeight: '1.5',
                             }}
                           >
                             {u.email}
