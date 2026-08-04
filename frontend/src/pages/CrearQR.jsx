@@ -214,7 +214,7 @@ export default function CrearQR() {
                     ).slice(0, 5);
                     if (sugerencias.length === 0) return null;
                     return (
-                      <div style={{ marginTop: '0.4rem', display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                      <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                         {sugerencias.map(u => (
                           <button
                             key={u.id}
@@ -227,13 +227,15 @@ export default function CrearQR() {
                               }
                             }}
                             style={{
-                              padding: '0.3rem 0.7rem',
-                              fontSize: '0.8rem',
-                              borderRadius: '20px',
+                              padding: '0.6rem 0.9rem',
+                              fontSize: '0.85rem',
+                              borderRadius: '8px',
                               border: '1px solid rgba(91,108,249,0.3)',
                               background: 'rgba(91,108,249,0.1)',
                               color: 'var(--primary)',
-                              cursor: 'pointer'
+                              cursor: 'pointer',
+                              textAlign: 'left',
+                              wordBreak: 'break-all',
                             }}
                           >
                             {u.email}
