@@ -297,6 +297,9 @@
 
 .log-item.success .log-status-dot { background: var(--success); box-shadow: 0 0 8px var(--success); }
 .log-item.error .log-status-dot { background: var(--error); }
+.log-item.warn .log-status-dot { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
+
+.log-item.warn .log-name { color: #fbbf24; }
 
 .log-name {
   font-weight: 600;

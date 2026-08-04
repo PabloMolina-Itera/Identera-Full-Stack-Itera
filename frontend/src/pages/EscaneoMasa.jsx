@@ -54,6 +54,18 @@ export default function EscaneoMasa() {
         toastService.success(`¡Validado: ${nombre}! (Escaneado con éxito, pasa al siguiente)`);
       };
 
+      const logWarn = (nombre) => {
+        const newLog = {
+          id: crypto.randomUUID(),
+          nombre: `⚠️ ${nombre} (QR desactualizado)`,
+          hora: new Date().toLocaleTimeString(),
+          status: 'warn'
+        };
+        setLogs(prev => [newLog, ...prev.slice(0, 19)]);
+        setSuccessCount(prev => prev + 1);
+        toastService.error(`⚠️ ${nombre}: QR desactualizado. Debe usar el código más reciente.`);
+      };
+
       const logError = (msg) => {
         const newLog = {
           id: crypto.randomUUID(),
@@ -65,9 +77,25 @@ export default function EscaneoMasa() {
         toastService.error(msg);
       };
 
-      // QR nuevo: contiene todos los datos embebidos
+      // QR nuevo: contiene todos los datos embebidos.
+      // Verificar contra la API que el código sea el vigente.
       if (payload.nombre) {
-        logSuccess(payload.nombre);
+        try {
+          const todos = await apiService.getValidaciones(payload.userId || null);
+          const matchApi = todos.find(
+            c => c?.data?.codigoValidador === codigo
+          );
+          if (matchApi) {
+            // Código encontrado en API → QR vigente
+            logSuccess(payload.nombre);
+          } else {
+            // Código NO encontrado → fue regenerado, QR desactualizado
+            logWarn(payload.nombre);
+          }
+        } catch {
+          // API no disponible: en modo masivo aceptamos para no trabar el flujo
+          logSuccess(payload.nombre);
+        }
         return;
       }
 
