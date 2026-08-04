@@ -214,7 +214,14 @@ export default function CrearQR() {
                     ).slice(0, 5);
                     if (sugerencias.length === 0) return null;
                     return (
-                      <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                      <div style={{
+                        marginTop: '0.85rem',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '0.5rem',
+                        maxHeight: '280px',
+                        overflowY: 'auto',
+                      }}>
                         {sugerencias.map(u => (
                           <button
                             key={u.id}
@@ -227,15 +234,18 @@ export default function CrearQR() {
                               }
                             }}
                             style={{
-                              padding: '0.6rem 0.9rem',
-                              fontSize: '0.85rem',
+                              padding: '0.7rem 1rem',
+                              fontSize: '0.9rem',
                               borderRadius: '8px',
                               border: '1px solid rgba(91,108,249,0.3)',
-                              background: 'rgba(91,108,249,0.1)',
+                              background: 'rgba(91,108,249,0.08)',
                               color: 'var(--primary)',
                               cursor: 'pointer',
                               textAlign: 'left',
                               wordBreak: 'break-all',
+                              lineHeight: '1.4',
+                              width: '100%',
+                              boxSizing: 'border-box',
                             }}
                           >
                             {u.email}
