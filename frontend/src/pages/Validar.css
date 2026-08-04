@@ -249,6 +249,23 @@
   color: var(--success);
 }
 
+.resultado-warning {
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.75rem;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: #f59e0b;
+}
+
+.resultado-warning strong {
+  color: #fbbf24;
+}
+
 .btn-close-result {
   background: transparent;
   border: none;

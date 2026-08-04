@@ -75,8 +75,12 @@ export default function Validar() {
 
       // QR nuevo: contiene todos los datos embebidos (excepto la foto, que se
       // excluye del QR por tamaño). Hay que buscarla en localStorage o API.
+      // También se verifica contra la API que el código sea el vigente
+      // (si fue regenerado, el código antiguo ya no es válido).
       if (payload.nombre) {
         let dataConFoto = { ...payload };
+        let vigente = true;
+        let apiError = false;
 
         // 1) Intentar recuperar la foto desde localStorage
         const locales = leerValidaciones();
@@ -85,25 +89,49 @@ export default function Validar() {
         );
         if (matchLocal) {
           dataConFoto.foto = matchLocal.data.foto;
-        } else {
-          // 2) Fallback: buscar la foto en la API
-          try {
-            // Si el QR incluye userId, filtramos para reducir la respuesta
-            const todos = await apiService.getValidaciones(payload.userId || null);
-            const matchApi = todos.find(
-              c => c?.data?.codigoValidador === payload.codigoValidador && c?.data?.foto
-            );
-            if (matchApi) {
-              dataConFoto.foto = matchApi.data.foto;
-            } else {
-              console.warn('[Validar] Carnet encontrado en API pero sin foto guardada. ¿Se guardó correctamente al crear el carnet?');
-            }
-          } catch (err) {
-            console.error('[Validar] No se pudo recuperar la foto desde la API:', err.message || err);
-          }
         }
 
-        setResultado({ ok: true, data: dataConFoto, userId: payload.userId });
+        // 2) Verificar vigencia y recuperar foto desde la API
+        try {
+          const todos = await apiService.getValidaciones(payload.userId || null);
+          const matchApi = todos.find(
+            c => c?.data?.codigoValidador === payload.codigoValidador
+          );
+
+          if (matchApi) {
+            // Código encontrado en API → QR vigente, recuperar foto si falta
+            if (!dataConFoto.foto && matchApi.data?.foto) {
+              dataConFoto.foto = matchApi.data.foto;
+            }
+          } else {
+            // Código NO encontrado en API → el QR fue regenerado
+            vigente = false;
+            console.warn('[Validar] QR desactualizado: el código fue regenerado.');
+
+            // Intentar recuperar la foto del carnet actual de la persona
+            const carnetActual = payload.userId
+              ? todos.find(c => c.userId === payload.userId && c?.data?.foto)
+              : todos.find(c =>
+                  c?.data?.nombre === payload.nombre &&
+                  c?.data?.cedula === payload.cedula &&
+                  c?.data?.foto
+                );
+            if (!dataConFoto.foto && carnetActual?.data?.foto) {
+              dataConFoto.foto = carnetActual.data.foto;
+            }
+          }
+        } catch (err) {
+          console.error('[Validar] No se pudo verificar vigencia en la API:', err.message || err);
+          apiError = true;
+        }
+
+        setResultado({
+          ok: true,
+          data: dataConFoto,
+          userId: payload.userId,
+          vigente,
+          apiError,
+        });
         detenerCamara();
         return;
       }
@@ -241,13 +269,33 @@ export default function Validar() {
       {hayResultadoValido ? (
         <section className="resultado-valido-section card">
           <div className="resultado-valido-header">
-            <h3 className="resultado-valido-title">✓ Carnet válido</h3>
+            <h3 className="resultado-valido-title">
+              {resultado.vigente === false
+                ? '⚠️ Carnet desactualizado'
+                : resultado.apiError
+                  ? '✓ Carnet válido (sin verificar)'
+                  : '✓ Carnet válido'}
+            </h3>
             <button type="button" className="btn-close-result" onClick={limpiarResultado} title="Escanear otro">
               <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
               </svg>
             </button>
           </div>
+
+          {resultado.vigente === false && (
+            <div className="resultado-warning">
+              Este QR ya no es válido. El código fue regenerado y solo el más reciente debe aceptarse.
+              Pide a la persona que use su QR actualizado desde <strong>Mis Carnets</strong>.
+            </div>
+          )}
+          {resultado.apiError && (
+            <div className="resultado-warning">
+              No se pudo verificar la vigencia del QR con el servidor. Se muestran los datos del QR, pero
+              no se garantiza que sea el código actual.
+            </div>
+          )}
+
           <CarnetCard datos={resultado.data} />
           <div className="resultado-actions">
             <button
