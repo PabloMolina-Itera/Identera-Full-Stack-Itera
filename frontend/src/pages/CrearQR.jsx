@@ -165,96 +165,90 @@ export default function CrearQR() {
           <section className="crear-qr-form card">
             {currentUser?.role === 'ADMINISTRADOR' && (
               <div className="admin-user-selector" style={{ marginBottom: '1.5rem', padding: '1.2rem', backgroundColor: 'rgba(91, 108, 249, 0.1)', borderLeft: '4px solid #5b6cf9', borderRadius: '4px' }}>
-                <h3 style={{ marginTop: 0, fontSize: '1.1rem', color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <h3 style={{ margin: '0 0 0.6rem 0', fontSize: '1.1rem', color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <span>🛡️</span> Asignar carnet a otro usuario
                 </h3>
-                <label style={{ marginBottom: 0 }}>
-                  <span style={{ fontSize: '0.9rem', opacity: 0.8, display: 'block', marginBottom: '0.5rem' }}>
-                    Selecciona el correo del usuario para enlazar su cuenta con este carnet de forma automática.
-                  </span>
-                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                    <input
-                      list="user-emails-datalist"
-                      placeholder="Escribe para buscar un correo..."
-                      value={searchEmail}
-                      onChange={(e) => setSearchEmail(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          const match = usersList.find(u => u.email.toLowerCase() === searchEmail.toLowerCase());
-                          if (match && match.id !== currentUser.id) {
-                            navigate(`/crear?userId=${match.id}&nombre=${encodeURIComponent(match.name || '')}`);
-                          } else if (searchEmail.toLowerCase() === currentUser.email.toLowerCase()) {
-                            navigate('/crear');
-                          }
-                        }
-                      }}
-                      style={{ flex: 1, padding: '0.8rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(0,0,0,0.3)', color: 'white', fontSize: '1rem' }}
-                    />
-                    <button
-                      type="button"
-                      className="btn primary"
-                      onClick={() => {
+                <p style={{ margin: '0 0 0.9rem 0', fontSize: '0.85rem', opacity: 0.75, lineHeight: '1.5' }}>
+                  Selecciona el correo del usuario para enlazar su cuenta con este carnet de forma automática.
+                </p>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.85rem' }}>
+                  <input
+                    list="user-emails-datalist"
+                    placeholder="Escribe para buscar un correo..."
+                    value={searchEmail}
+                    onChange={(e) => setSearchEmail(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
                         const match = usersList.find(u => u.email.toLowerCase() === searchEmail.toLowerCase());
                         if (match && match.id !== currentUser.id) {
                           navigate(`/crear?userId=${match.id}&nombre=${encodeURIComponent(match.name || '')}`);
                         } else if (searchEmail.toLowerCase() === currentUser.email.toLowerCase()) {
                           navigate('/crear');
                         }
-                      }}
-                      style={{ padding: '0.8rem 1.2rem', whiteSpace: 'nowrap', fontSize: '0.9rem' }}
-                    >
-                      Asignar
-                    </button>
-                  </div>
-                  {searchEmail && (() => {
-                    const sugerencias = usersList.filter(u =>
-                      u.email.toLowerCase().includes(searchEmail.toLowerCase()) &&
-                      u.email.toLowerCase() !== searchEmail.toLowerCase()
-                    ).slice(0, 5);
-                    if (sugerencias.length === 0) return null;
-                    return (
-                      <div style={{
-                        marginTop: '0.85rem',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '0.5rem',
-                      }}>
-                        {sugerencias.map(u => (
-                          <button
-                            key={u.id}
-                            type="button"
-                            onClick={() => {
-                              if (u.id !== currentUser.id) {
-                                navigate(`/crear?userId=${u.id}&nombre=${encodeURIComponent(u.name || '')}`);
-                              } else {
-                                navigate('/crear');
-                              }
-                            }}
-                            style={{
-                              padding: '0.7rem 1rem',
-                              fontSize: '0.9rem',
-                              borderRadius: '8px',
-                              border: '1px solid rgba(91,108,249,0.3)',
-                              background: 'rgba(91,108,249,0.08)',
-                              color: 'var(--primary)',
-                              cursor: 'pointer',
-                              textAlign: 'left',
-                              width: '100%',
-                              boxSizing: 'border-box',
-                              whiteSpace: 'normal',
-                              wordBreak: 'break-word',
-                              overflowWrap: 'break-word',
-                              lineHeight: '1.5',
-                            }}
-                          >
-                            {u.email}
-                          </button>
-                        ))}
-                      </div>
-                    );
-                  })()}
-                </label>
+                      }
+                    }}
+                    style={{ flex: 1, padding: '0.8rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(0,0,0,0.3)', color: 'white', fontSize: '1rem' }}
+                  />
+                  <button
+                    type="button"
+                    className="btn primary"
+                    onClick={() => {
+                      const match = usersList.find(u => u.email.toLowerCase() === searchEmail.toLowerCase());
+                      if (match && match.id !== currentUser.id) {
+                        navigate(`/crear?userId=${match.id}&nombre=${encodeURIComponent(match.name || '')}`);
+                      } else if (searchEmail.toLowerCase() === currentUser.email.toLowerCase()) {
+                        navigate('/crear');
+                      }
+                    }}
+                    style={{ padding: '0.8rem 1.2rem', whiteSpace: 'nowrap', fontSize: '0.9rem' }}
+                  >
+                    Asignar
+                  </button>
+                </div>
+                {searchEmail && (() => {
+                  const sugerencias = usersList.filter(u =>
+                    u.email.toLowerCase().includes(searchEmail.toLowerCase()) &&
+                    u.email.toLowerCase() !== searchEmail.toLowerCase()
+                  ).slice(0, 5);
+                  if (sugerencias.length === 0) return null;
+                  return (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+                      {sugerencias.map(u => (
+                        <button
+                          key={u.id}
+                          type="button"
+                          onClick={() => {
+                            if (u.id !== currentUser.id) {
+                              navigate(`/crear?userId=${u.id}&nombre=${encodeURIComponent(u.name || '')}`);
+                            } else {
+                              navigate('/crear');
+                            }
+                          }}
+                          style={{
+                            display: 'block',
+                            width: '100%',
+                            padding: '0.65rem 0.9rem',
+                            fontSize: '0.85rem',
+                            borderRadius: '8px',
+                            border: '1px solid rgba(91,108,249,0.35)',
+                            background: 'rgba(91,108,249,0.1)',
+                            color: '#a5b4fc',
+                            cursor: 'pointer',
+                            textAlign: 'left',
+                            boxSizing: 'border-box',
+                            whiteSpace: 'normal',
+                            wordBreak: 'break-word',
+                            overflowWrap: 'break-word',
+                            lineHeight: '1.5',
+                          }}
+                        >
+                          {u.email}
+                        </button>
+                      ))}
+                    </div>
+                  );
+                })()}
                 <datalist id="user-emails-datalist">
                   <option value={currentUser.email}>Mi Carnet Propio (Administrador)</option>
                   {usersList.filter(u => u.id !== currentUser.id).map(u => (
