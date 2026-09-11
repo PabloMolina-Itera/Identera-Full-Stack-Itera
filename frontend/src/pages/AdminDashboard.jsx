@@ -211,7 +211,7 @@ export default function AdminDashboard() {
             <form onSubmit={handleCreateUser} className="admin-form">
               <label>
                 Nombre
-                <input type="text" required value={newName} onChange={e => setNewName(e.target.value)} placeholder="Ej. Juan Pérez" />
+                <input type="text" required value={newName} onChange={e => setNewName(e.target.value)} placeholder="Ej. Juan Pérez (Max 50 caracteres)" maxLength={50}/>
               </label>
               <label>
                 Email
@@ -250,7 +250,7 @@ export default function AdminDashboard() {
             <form onSubmit={handleEditUser} className="admin-form">
               <label>
                 Nombre Completo
-                <input type="text" required value={editName} onChange={e => setEditName(e.target.value)} placeholder="Ej. Juan Pérez" />
+                <input type="text" required value={editName} onChange={e => setEditName(e.target.value)} placeholder="Ej. Juan Pérez (Max 50 caracteres)" maxLength={50}/>
               </label>
               <label>
                 Email (Llave de Acceso)

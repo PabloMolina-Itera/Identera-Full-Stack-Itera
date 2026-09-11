@@ -12,8 +12,9 @@
 }
 
 .carnet-card-wrap .carnet {
-  width: 100%;
-  max-width: 360px;
+  width: 360px;
+  min-width: 360px;
+  box-sizing: border-box; /* Bordes en el ancho total */
   background: linear-gradient(135deg, #111111 0%, #1e1e1e 100%);
   border-radius: 16px;
   overflow: hidden;
@@ -121,18 +122,27 @@
   flex-direction: column;
   gap: 0.15rem;
   overflow: hidden;
+  min-width: 0;
+  width: 100%;
 }
 
 .carnet-card-wrap .carnet-nombre {
   margin: 0;
   font-weight: 700;
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   color: #fff;
-  line-height: 1.1;
+  line-height: 1.2;
   letter-spacing: -0.02em;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+  box-sizing: border-box;
 }
 
 .carnet-card-wrap .carnet-cargo {

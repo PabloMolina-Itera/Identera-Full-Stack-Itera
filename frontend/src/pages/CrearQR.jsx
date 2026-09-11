@@ -135,11 +135,21 @@ export default function CrearQR() {
   }, [JSON.stringify(datos), dataLoaded, targetUserId, currentUser]);
 
   const handleDescargar = async () => {
-    if (!carnetRef.current) return;
+    // Apuntamos directo al elemento .carnet dentro del componente
+    const carnetNode = carnetRef.current?.querySelector('.carnet') || carnetRef.current;
+    if (!carnetNode) return;
+
     try {
-      const canvas = await html2canvas(carnetRef.current, {
-        backgroundColor: null,
-        scale: 2, // Mejor resolución
+      const canvas = await html2canvas(carnetNode, {
+        backgroundColor: null, // Mantiene esquinas transparentes
+        scale: 3,               // Alta calidad de resolución
+        useCORS: true,          // Habilita imágenes externas (fotos)
+        width: carnetNode.offsetWidth,   // Forzar ancho exacto del elemento
+        height: carnetNode.offsetHeight, // Forzar alto exacto del elemento
+        windowWidth: carnetNode.offsetWidth,
+        windowHeight: carnetNode.offsetHeight,
+        scrollX: 0,
+        scrollY: 0
       });
       const url = canvas.toDataURL('image/png');
       const link = document.createElement('a');
@@ -265,8 +275,9 @@ export default function CrearQR() {
                 type="text"
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
-                placeholder="Ej. María García"
+                placeholder="Ej. María García (Max 50 caracteres)"
                 disabled={isReadOnly}
+                maxLength={50}
               />
             </label>
             <label>
